@@ -24,22 +24,17 @@ public class NestedTableAggregator {
         for (Map.Entry<String, String> entry : fieldMap.entrySet()) {
             String fieldName = entry.getKey();
             String fieldValue = entry.getValue();
-            // family:qualifier:{SOURCE_KEY_VALUE} or family:qualifier
-            String[] familyQualifier = fieldName.split(":", 2);
+            //qualifier:{SOURCE_KEY_VALUE} or qualifier
+            String[] qualifier = fieldName.split(":", 2);
 
-            if (familyQualifier.length < 2) {
+            if (qualifier.length < 2) {//normal qualifier
                 continue;
             }
 
-            String qualifier = familyQualifier[1];
-            int idx = qualifier.indexOf(":");
-            if (idx < 0) {
-                continue;
-            }
             nestedFields.add(fieldName);
 
-            String nestedTableName = familyQualifier[0] + ":" + qualifier.substring(0, idx);
-            String nestedTableField = qualifier.substring(idx + 1);
+            String nestedTableName = qualifier[0];
+            String nestedTableField = qualifier[1];
 
             if (!nestedTables.containsKey(nestedTableName)) {
                 nestedTables.put(nestedTableName, new HashMap<String, String>());
