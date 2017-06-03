@@ -4,11 +4,16 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import udp.DefaultUdp;
+import udp.UDPInterface;
+import utils.NestedTableAggregator;
+import utils.StringUtil;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NavigableMap;
 
 /**
@@ -19,9 +24,20 @@ public class HbaseSourceMapper extends TableMapper<NullWritable, Text> {
     private final static String DOC_END = "</doc>";
     private final static String KV_SEPARATOR = "=";
     private final static String RECORD_SEPARATOR = "\001\t";
+    private final static String UDP_CLASS_NAME = "udp.class.name";
+    private UDPInterface udpProcessor;
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
-        super.setup(context);
+        String udpClassName = context.getConfiguration().get(UDP_CLASS_NAME);
+        if(StringUtil.isEmpty(udpClassName)){
+            udpProcessor = new DefaultUdp();
+        }else{
+            try {
+                udpProcessor = (UDPInterface) Class.forName(udpClassName).newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -31,17 +47,29 @@ public class HbaseSourceMapper extends TableMapper<NullWritable, Text> {
         if(result.isEmpty()){
             return;
         }
-        StringBuilder sb = new StringBuilder();
-        sb.append(DOC_BEGIN);
+        Map<String, String> fieldMap = new HashMap<>();
         for(NavigableMap.Entry<byte[], NavigableMap<byte[], byte[]>> familyEntry : result.entrySet()){
             for(NavigableMap.Entry<byte[], byte[]> entry : familyEntry.getValue().entrySet()){
-                sb.append(Bytes.toString(entry.getKey()))
-                        .append(KV_SEPARATOR)
-                        .append(Bytes.toString(entry.getValue()))
-                        .append(RECORD_SEPARATOR);
+                fieldMap.put(Bytes.toString(entry.getKey()), Bytes.toString(entry.getValue()));
             }
         }
+        NestedTableAggregator.aggregate(fieldMap);
+
+        if(!udpProcessor.process(fieldMap)){
+            context.getCounter("HbaseSourceMapper", "filter records").increment(1);
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(DOC_BEGIN);
+        for(Map.Entry<String, String> entry : fieldMap.entrySet()){
+            sb.append(entry.getKey())
+                    .append(KV_SEPARATOR)
+                    .append(entry.getValue())
+                    .append(RECORD_SEPARATOR);
+        }
         sb.append(DOC_END);
+        context.getCounter("HbaseSourceMapper", "output records").increment(1);
         context.write(NullWritable.get(), new Text(sb.toString()));
     }
 }
