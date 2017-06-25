@@ -22,6 +22,8 @@ import utils.StringUtil;
 import javax.annotation.Nullable;
 import java.io.IOException;
 
+import static utils.Constants.*;
+
 /**
  * Created by zhuifeng on 2017/5/31.
  */
@@ -60,6 +62,7 @@ public class FullJoin extends Configured implements Tool {
         this.scan = new Scan();
         Options option = new Options();
         option.addOption("f", true, "xml config");
+        option.addOption("udpClassName", false, "udpClassName");
         CommandLineParser parser = new DefaultParser();
         CommandLine cl = parser.parse(option, args);
 
@@ -79,9 +82,9 @@ public class FullJoin extends Configured implements Tool {
         scan.setCacheBlocks(false);
 
         primaryTable = conf.get("primaryTable");
-        checkArgument(StringUtil.isEmpty(primaryTable), "primaryTable is empty for not set");
+        checkArgument(StringUtil.isNotEmpty(primaryTable), "primaryTable is empty for not set");
         String outputDir = conf.get("hdfs.output.path");
-        checkArgument(StringUtil.isEmpty(outputDir), "hdfs.output.path is empty for not set");
+        checkArgument(StringUtil.isNotEmpty(outputDir), "hdfs.output.path is empty for not set");
         outputPath = new Path(outputDir);
         FileSystem fs = FileSystem.get(conf);
         if(fs.exists(outputPath)){
@@ -89,6 +92,7 @@ public class FullJoin extends Configured implements Tool {
                 throw new IllegalStateException("delete path:" + outputPath + " failed");
             }
         }
+        getConf().set(UDP_CLASS_NAME, cl.getOptionValue("udpClassName", ""));
     }
     private static void checkArgument(boolean condiction, @Nullable Object errorMsg){
         if(!condiction){

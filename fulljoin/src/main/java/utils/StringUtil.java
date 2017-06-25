@@ -7,4 +7,8 @@ public class StringUtil {
     public static boolean isEmpty(String value){
         return null == value || value.isEmpty();
     }
+
+    public static boolean isNotEmpty(String value){
+        return !isEmpty(value);
+    }
 }

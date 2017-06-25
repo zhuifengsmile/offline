@@ -378,13 +378,12 @@ public class ImportTsv extends Configured implements Tool{
 				throw new RuntimeException("No row key column specified");
 			}
 
-			Class rowkeyCls;
 			try {
-				rowkeyCls = Class.forName(conf.get(ROWKEY_GENERATOR_CONF_KEY));
+				Class rowkeyCls = Class.forName(conf.get(ROWKEY_GENERATOR_CONF_KEY));
 				rowkeyGenerator = (IRowKeyGenerator) rowkeyCls.newInstance();
 
 			} catch (Exception e) {
-				throw new RuntimeException(e.getMessage(), e);
+				throw new IllegalArgumentException(e.getMessage(), e);
 			}
 			rowkeyParam = conf.get(ROWKEY_GENERATOR_PARAM_CONF_KEY);
 			String timestamp = conf.get(TIMESTAMP);

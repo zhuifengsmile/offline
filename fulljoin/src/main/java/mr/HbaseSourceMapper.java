@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableMap;
 
+import static utils.Constants.*;
+
 /**
  * Created by zhuifeng on 2017/5/31.
  */
@@ -24,7 +26,6 @@ public class HbaseSourceMapper extends TableMapper<NullWritable, Text> {
     private final static String DOC_END = "</doc>";
     private final static String KV_SEPARATOR = "=";
     private final static String RECORD_SEPARATOR = "\001\t";
-    private final static String UDP_CLASS_NAME = "udp.class.name";
     private UDPInterface udpProcessor;
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -35,7 +36,7 @@ public class HbaseSourceMapper extends TableMapper<NullWritable, Text> {
             try {
                 udpProcessor = (UDPInterface) Class.forName(udpClassName).newInstance();
             } catch (Exception e) {
-                throw new RuntimeException(e.getMessage());
+                throw new IllegalArgumentException(e.getMessage());
             }
         }
     }
