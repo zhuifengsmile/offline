@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -508,6 +509,12 @@ public class ImportTsv extends Configured implements Tool{
 				if (hfileOutPath != null) {
 					try (HTable table = (HTable)connection.getTable(tableName)) {
 						Path outputDir = new Path(hfileOutPath);
+						FileSystem fs = FileSystem.get(conf);
+						if(fs.exists(outputDir)){
+							if(!fs.delete(outputDir, true)){
+								throw new IllegalStateException("delete path:" + outputDir + " failed");
+							}
+						}
 						FileOutputFormat.setOutputPath(job, outputDir);
 						job.setMapOutputKeyClass(ImmutableBytesWritable.class);
 						job.setMapOutputValueClass(Put.class);
