@@ -24,13 +24,13 @@ public abstract class AbstractRowKeyGenerator implements IRowKeyGenerator{
 
     @Override
     public byte[] genRowKey(String id, String param) {
-        Preconditions.checkArgument(StringUtil.isEmpty(param),
-                "rowKey handler params error:" + param + ",should like 4:1000");
+        Preconditions.checkArgument(StringUtil.isNotEmpty(param),
+                "rowKey handler params error:" + param + ",should like 1000:4");
         String[] params = param.split(":");
         Preconditions.checkArgument( 2 != params.length,
-                "rowKey handler params error:" + param + ",should like 4:1000");
-        int prefixNum = Integer.parseInt(params[0]);
-        int mod = Integer.parseInt(params[1]);
+                "rowKey handler params error:" + param + ",should like 1000:4");
+        int mod = Integer.parseInt(params[0]);
+        int prefixNum = Integer.parseInt(params[1]);
         return genRowKey(id, prefixNum, mod);
     }
 }
