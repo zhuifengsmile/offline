@@ -29,10 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.TableNotFoundException;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
@@ -92,6 +89,7 @@ public class ImportTsv extends Configured implements Tool{
 			usage("Wrong number of arguments: " + args.length);
 			return -1;
 		}
+		setConf(HBaseConfiguration.create(getConf()));
 		Configuration conf = getConf();
 		// Make sure columns are specified
 		String columns[] = conf.getStrings(COLUMNS_CONF_KEY);
