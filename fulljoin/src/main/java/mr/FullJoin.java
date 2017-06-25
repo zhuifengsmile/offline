@@ -63,7 +63,8 @@ public class FullJoin extends Configured implements Tool {
         Options option = new Options();
         option.addOption("f", true, "xml config");
         option.addOption("udpClassName", false, "udpClassName");
-        CommandLineParser parser = new DefaultParser();
+//        CommandLineParser parser = new DefaultParser();
+        CommandLineParser parser = new GnuParser();
         CommandLine cl = parser.parse(option, args);
 
         Configuration conf = getConf();
