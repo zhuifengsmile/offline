@@ -22,10 +22,10 @@ import static utils.Constants.*;
  * Created by zhuifeng on 2017/5/31.
  */
 public class HbaseSourceMapper extends TableMapper<NullWritable, Text> {
-    private final static String DOC_BEGIN = "<doc>";
-    private final static String DOC_END = "</doc>";
+    private final static String DOC_BEGIN = "<doc>\001\n";
+    private final static String DOC_END = "</doc>\001\n";
     private final static String KV_SEPARATOR = "=";
-    private final static String RECORD_SEPARATOR = "\001\t";
+    private final static String RECORD_SEPARATOR = "\001\n";
     private UDPInterface udpProcessor;
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {

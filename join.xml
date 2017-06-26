@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+    <property>
+        <description>scan main table</description>
+        <name>primaryTable</name>
+        <value>test_interTable</value>
+    </property>
+    <property>
+        <description>doc output dir</description>
+        <name>hdfs.output.path</name>
+        <value>/test/full/result</value>
+    </property>
+ </configuration>
